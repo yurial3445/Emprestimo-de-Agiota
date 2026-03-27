@@ -1,0 +1,607 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Empréstimos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-Y1E8zffzI3Y+qf+X3A2B3H1qYT22V+qfXRj2i4BWNT+ZYQ1dkuVdPr4Q6uuQ8a+I" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+  <style>
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --danger-gradient: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+      --info-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      color: #2c3e50;
+    }
+
+    .navbar {
+      background: var(--primary-gradient) !important;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      background: linear-gradient(45deg, #fff, #e0e7ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .card {
+      border: none;
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--primary-gradient);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    .card-header {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      padding: 1rem 1.5rem;
+      font-weight: 600;
+    }
+
+    .btn {
+      border-radius: 0.75rem;
+      font-weight: 500;
+      padding: 0.75rem 1.5rem;
+      transition: all 0.3s ease;
+      border: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn-primary { background: var(--primary-gradient); }
+    .btn-success { background: var(--success-gradient); }
+    .btn-warning { background: var(--warning-gradient); }
+    .btn-danger { background: var(--danger-gradient); }
+    .btn-info { background: var(--info-gradient); }
+
+    .form-control {
+      border-radius: 0.75rem;
+      border: 2px solid #e9ecef;
+      padding: 0.75rem 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .table {
+      border-radius: 0.75rem;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .table thead th {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      font-weight: 600;
+      padding: 1rem;
+    }
+
+    .table tbody tr:nth-child(even) {
+      background-color: rgba(102, 126, 234, 0.05);
+    }
+
+    .table tbody tr:hover {
+      background-color: rgba(102, 126, 234, 0.1);
+      transform: scale(1.01);
+      transition: all 0.2s ease;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 1rem;
+      font-weight: 500;
+    }
+
+    .alert {
+      border-radius: 1rem;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 20px;
+      z-index: 1000;
+    }
+
+    .nav-tabs .nav-link {
+      border: none;
+      border-radius: 0.75rem 0.75rem 0 0;
+      color: #6c757d;
+      font-weight: 500;
+      padding: 0.75rem 1.5rem;
+      margin-right: 0.25rem;
+      transition: all 0.3s ease;
+    }
+
+    .nav-tabs .nav-link.active {
+      background: var(--primary-gradient);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .tab-content {
+      background: white;
+      border-radius: 0 1rem 1rem 1rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      padding: 2rem;
+      margin-top: -1px;
+    }
+
+    .data-table {
+      max-height: 350px;
+      overflow-y: auto;
+      border-radius: 0.5rem;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .icon-large {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      opacity: 0.8;
+    }
+
+    .hero-section {
+      background: var(--primary-gradient);
+      color: white;
+      padding: 3rem 0;
+      border-radius: 1rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .hero-section h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-section p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">
+        <i class="bi bi-house-door-fill me-2"></i>
+        Emprestimo de Agiota
+      </a>
+      <span class="navbar-text">
+        <i class="bi bi-shield-check me-1"></i>
+        Sistema Seguro de Gestão
+      </span>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <div class="hero-section fade-in">
+      <div class="container">
+        <i class="bi bi-graph-up icon-large"></i>
+        <h1>Painel de Controle</h1>
+        <p>Gerencie empréstimos, usuários e itens com eficiência e segurança</p>
+      </div>
+    </div>
+
+    <div id="feedback" class="alert d-none fade-in" role="alert">
+      <i class="bi bi-info-circle me-2"></i>
+      <span id="feedback-text"></span>
+    </div>
+
+    <ul class="nav nav-tabs justify-content-center" id="mainTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-cadastro" data-bs-toggle="tab" data-bs-target="#cadastro" type="button" role="tab">
+          <i class="bi bi-plus-circle me-2"></i>Cadastro
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-emprestimo" data-bs-toggle="tab" data-bs-target="#emprestimo" type="button" role="tab">
+          <i class="bi bi-arrow-left-right me-2"></i>Empréstimo
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-listagens" data-bs-toggle="tab" data-bs-target="#listagens" type="button" role="tab">
+          <i class="bi bi-table me-2"></i>Listagens
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-exclusao" data-bs-toggle="tab" data-bs-target="#exclusao" type="button" role="tab">
+          <i class="bi bi-trash me-2"></i>Exclusão
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content" id="mainTabsContent">
+      <div class="tab-pane fade show active" id="cadastro" role="tabpanel">
+        <div class="row g-4">
+          <div class="col-lg-4">
+            <div class="card h-100">
+              <div class="card-header">
+                <i class="bi bi-person-plus me-2"></i>Novo Usuário
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label"><i class="bi bi-person me-1"></i>Nome</label>
+                  <input id="user-name" class="form-control" placeholder="Digite o nome completo" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label"><i class="bi bi-envelope me-1"></i>Email</label>
+                  <input id="user-email" class="form-control" placeholder="usuario@email.com" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label"><i class="bi bi-telephone me-1"></i>Telefone (opcional)</label>
+                  <input id="user-phone" class="form-control" placeholder="(11) 99999-9999" />
+                </div>
+                <button id="btn-create-user" class="btn btn-primary w-100">
+                  <i class="bi bi-check-circle me-2"></i>Cadastrar Usuário
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="card h-100">
+              <div class="card-header">
+                <i class="bi bi-tag me-2"></i>Nova Categoria
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label"><i class="bi bi-tag-fill me-1"></i>Nome da Categoria</label>
+                  <input id="category-name" class="form-control" placeholder="Ex: Ferramentas, Livros..." />
+                </div>
+                <button id="btn-create-category" class="btn btn-primary w-100">
+                  <i class="bi bi-check-circle me-2"></i>Cadastrar Categoria
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="card h-100">
+              <div class="card-header">
+                <i class="bi bi-box-seam me-2"></i>Novo Item
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label"><i class="bi bi-box me-1"></i>Nome do Item</label>
+                  <input id="item-name" class="form-control" placeholder="Nome do item" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label"><i class="bi bi-card-text me-1"></i>Descrição</label>
+                  <input id="item-desc" class="form-control" placeholder="Descrição opcional" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label"><i class="bi bi-tags me-1"></i>ID da Categoria</label>
+                  <input id="item-category-id" type="number" class="form-control" placeholder="1" />
+                </div>
+                <button id="btn-create-item" class="btn btn-primary w-100">
+                  <i class="bi bi-check-circle me-2"></i>Cadastrar Item
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="emprestimo" role="tabpanel">
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <div class="card h-100">
+              <div class="card-header">
+                <i class="bi bi-arrow-right-circle me-2"></i>Criar Empréstimo
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label"><i class="bi bi-person me-1"></i>ID do Usuário</label>
+                  <input id="loan-user-id" type="number" class="form-control" placeholder="1" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label"><i class="bi bi-box me-1"></i>ID do Item</label>
+                  <input id="loan-item-id" type="number" class="form-control" placeholder="1" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label"><i class="bi bi-calendar me-1"></i>Data de Devolução</label>
+                  <input id="loan-due-date" type="datetime-local" class="form-control" />
+                </div>
+                <button id="btn-create-loan" class="btn btn-success w-100">
+                  <i class="bi bi-check-circle me-2"></i>Realizar Empréstimo
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="card h-100">
+              <div class="card-header">
+                <i class="bi bi-arrow-left-circle me-2"></i>Registrar Devolução
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label"><i class="bi bi-receipt me-1"></i>ID do Empréstimo</label>
+                  <input id="return-loan-id" type="number" class="form-control" placeholder="1" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label"><i class="bi bi-person me-1"></i>ID do Usuário</label>
+                  <input id="return-user-id" type="number" class="form-control" placeholder="1" />
+                </div>
+                <button id="btn-return-loan" class="btn btn-warning w-100">
+                  <i class="bi bi-check-circle me-2"></i>Confirmar Devolução
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="listagens" role="tabpanel">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="mb-0"><i class="bi bi-list-ul me-2"></i>Dados do Sistema</h4>
+          <button id="btn-load-all" class="btn btn-info">
+            <i class="bi bi-arrow-clockwise me-2"></i>Atualizar Tudo
+          </button>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-lg-4">
+            <div class="card h-100">
+              <div class="card-header">
+                <i class="bi bi-people me-2"></i>Usuários Cadastrados
+              </div>
+              <div class="card-body p-0">
+                <div class="data-table">
+                  <table class="table table-hover mb-0" id="users-table">
+                    <thead><tr><th>ID</th><th>Nome</th><th>Email</th><th>Telefone</th></tr></thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="card h-100">
+              <div class="card-header">
+                <i class="bi bi-boxes me-2"></i>Itens Disponíveis
+              </div>
+              <div class="card-body p-0">
+                <div class="data-table">
+                  <table class="table table-hover mb-0" id="items-table">
+                    <thead><tr><th>ID</th><th>Nome</th><th>Categoria</th><th>Status</th></tr></thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="card h-100">
+              <div class="card-header">
+                <i class="bi bi-journal-text me-2"></i>Empréstimos Ativos
+              </div>
+              <div class="card-body p-0">
+                <div class="data-table">
+                  <table class="table table-hover mb-0" id="loans-table">
+                    <thead><tr><th>ID</th><th>Usuário</th><th>Item</th><th>Status</th></tr></thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="exclusao" role="tabpanel">
+        <div class="alert alert-warning">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          <strong>Atenção:</strong> As exclusões são permanentes e podem afetar empréstimos ativos.
+        </div>
+
+        <div class="row g-4">
+          <div class="col-lg-4">
+            <div class="card h-100">
+              <div class="card-header bg-danger text-white">
+                <i class="bi bi-person-dash me-2"></i>Excluir Usuário
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label"><i class="bi bi-hash me-1"></i>ID do Usuário</label>
+                  <input id="delete-user-id" type="number" class="form-control" placeholder="Digite o ID" />
+                </div>
+                <button id="btn-delete-user" class="btn btn-danger w-100">
+                  <i class="bi bi-trash me-2"></i>Excluir Usuário
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="card h-100">
+              <div class="card-header bg-danger text-white">
+                <i class="bi bi-box-dash me-2"></i>Excluir Item
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label"><i class="bi bi-hash me-1"></i>ID do Item</label>
+                  <input id="delete-item-id" type="number" class="form-control" placeholder="Digite o ID" />
+                </div>
+                <button id="btn-delete-item" class="btn btn-danger w-100">
+                  <i class="bi bi-trash me-2"></i>Excluir Item
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="card h-100">
+              <div class="card-header bg-danger text-white">
+                <i class="bi bi-journal-x me-2"></i>Excluir Empréstimo
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label"><i class="bi bi-hash me-1"></i>ID do Empréstimo</label>
+                  <input id="delete-loan-id" type="number" class="form-control" placeholder="Digite o ID" />
+                </div>
+                <button id="btn-delete-loan" class="btn btn-danger w-100">
+                  <i class="bi bi-trash me-2"></i>Excluir Empréstimo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-whatever" crossorigin="anonymous"></script>
+  <script>
+    const baseUrl = '';
+
+    const showFeedback = (msg, type='success') => {
+      const el = document.getElementById('feedback');
+      const textEl = document.getElementById('feedback-text');
+      textEl.textContent = msg;
+      el.className = lert alert- d-block fade-in;
+      setTimeout(() => el.classList.add('d-none'), 4000);
+    };
+
+    async function api(method, endpoint, body=null) {
+      const opts = { method, headers: { 'Content-Type': 'application/json' } };
+      if (body) opts.body = JSON.stringify(body);
+      const r = await fetch(${baseUrl}, opts);
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || JSON.stringify(data));
+      return data;
+    }
+
+    const formatItem = item => <tr><td></td><td></td><td></td><td><span class="badge "></span></td></tr>;
+    const formatUser = u => <tr><td></td><td></td><td></td><td></td></tr>;
+    const formatLoan = l => <tr><td></td><td></td><td></td><td><span class="badge "></span></td></tr>;
+
+    const loadLists = async () => {
+      try {
+        const [users, items, loans] = await Promise.all([api('GET','/users'), api('GET','/items'), api('GET','/loans')]);
+        document.querySelector('#users-table tbody').innerHTML = users.map(formatUser).join('');
+        document.querySelector('#items-table tbody').innerHTML = items.map(formatItem).join('');
+        document.querySelector('#loans-table tbody').innerHTML = loans.map(formatLoan).join('');
+      } catch (err) {
+        showFeedback(err.message, 'danger');
+      }
+    };
+
+    const doPost = async (endpoint, data, successMsg) => {
+      try { await api('POST', endpoint, data); showFeedback(successMsg, 'success'); loadLists(); } catch (err) { showFeedback(err.message, 'danger'); }
+    };
+
+    const doDelete = async (idField, endpointFn, successMsg) => {
+      const id = Number(document.getElementById(idField).value || '0');
+      if (!id) return showFeedback('Informe ID válido.', 'warning');
+      try { await api('DELETE', endpointFn(id)); showFeedback(successMsg, 'success'); loadLists(); } catch (err) { showFeedback(err.message, 'danger'); }
+    };
+
+    document.getElementById('btn-create-user').onclick = () => {
+      const name = document.getElementById('user-name').value.trim();
+      const email = document.getElementById('user-email').value.trim();
+      if (!name || !email) return showFeedback('Nome e email obrigatórios.', 'warning');
+      doPost('/users', { name, email, phone: document.getElementById('user-phone').value.trim() || undefined }, 'Usuário cadastrado com sucesso!');
+    };
+
+    document.getElementById('btn-create-category').onclick = () => {
+      const name = document.getElementById('category-name').value.trim();
+      if (!name) return showFeedback('Nome da categoria obrigatório.', 'warning');
+      doPost('/categories', { name }, 'Categoria cadastrada com sucesso!');
+    };
+
+    document.getElementById('btn-create-item').onclick = () => {
+      const name = document.getElementById('item-name').value.trim();
+      const category_id = Number(document.getElementById('item-category-id').value || '0');
+      if (!name || !category_id) return showFeedback('Nome do item e categoria obrigatórios.', 'warning');
+      doPost('/items', { name, description: document.getElementById('item-desc').value.trim() || undefined, category_id }, 'Item cadastrado com sucesso!');
+    };
+
+    document.getElementById('btn-create-loan').onclick = () => {
+      const user_id = Number(document.getElementById('loan-user-id').value || '0');
+      const item_id = Number(document.getElementById('loan-item-id').value || '0');
+      const due_date = document.getElementById('loan-due-date').value;
+      if (!user_id || !item_id || !due_date) return showFeedback('Todos os campos são obrigatórios para empréstimo.', 'warning');
+      doPost('/loans', { user_id, item_id, due_date }, 'Empréstimo realizado com sucesso!');
+    };
+
+    document.getElementById('btn-return-loan').onclick = () => {
+      const loan_id = Number(document.getElementById('return-loan-id').value || '0');
+      const user_id = Number(document.getElementById('return-user-id').value || '0');
+      if (!loan_id || !user_id) return showFeedback('IDs são obrigatórios para devolução.', 'warning');
+      doPost(/loans//return, { user_id }, 'Devolução registrada com sucesso!');
+    };
+
+    document.getElementById('btn-delete-user').onclick = () => doDelete('delete-user-id', id => /users/, 'Usuário excluído com sucesso!');
+    document.getElementById('btn-delete-item').onclick = () => doDelete('delete-item-id', id => /items/, 'Item excluído com sucesso!');
+    document.getElementById('btn-delete-loan').onclick = () => doDelete('delete-loan-id', id => /loans/, 'Empréstimo excluído com sucesso!');
+    document.getElementById('btn-load-all').onclick = loadLists;
+
+    window.onload = loadLists;
+  </script>
+</body>
+</html>
