@@ -519,30 +519,57 @@
   <script>
     const baseUrl = '';
 
-    const showFeedback = (msg, type='success') => {
+    const showFeedback = (msg, type = 'success') => {
       const el = document.getElementById('feedback');
       const textEl = document.getElementById('feedback-text');
       textEl.textContent = msg;
-      el.className = lert alert- d-block fade-in;
+      el.className = `alert alert-${type} d-block fade-in`;
       setTimeout(() => el.classList.add('d-none'), 4000);
     };
 
-    async function api(method, endpoint, body=null) {
+    async function api(method, endpoint, body = null) {
       const opts = { method, headers: { 'Content-Type': 'application/json' } };
       if (body) opts.body = JSON.stringify(body);
-      const r = await fetch(${baseUrl}, opts);
+      const r = await fetch(baseUrl + endpoint, opts);
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || JSON.stringify(data));
       return data;
     }
 
-    const formatItem = item => <tr><td></td><td></td><td></td><td><span class="badge "></span></td></tr>;
-    const formatUser = u => <tr><td></td><td></td><td></td><td></td></tr>;
-    const formatLoan = l => <tr><td></td><td></td><td></td><td><span class="badge "></span></td></tr>;
+    const formatItem = item => `
+      <tr>
+        <td>${item.id}</td>
+        <td>${item.name}</td>
+        <td>${item.category?.name || ''}</td>
+        <td><span class="badge ${item.available ? 'bg-success' : 'bg-secondary'}">${item.available ? 'Disponível' : 'Emprestado'}</span></td>
+      </tr>
+    `;
+
+    const formatUser = u => `
+      <tr>
+        <td>${u.id}</td>
+        <td>${u.name}</td>
+        <td>${u.email}</td>
+        <td>${u.phone || ''}</td>
+      </tr>
+    `;
+
+    const formatLoan = l => `
+      <tr>
+        <td>${l.id}</td>
+        <td>${l.user?.name || ''}</td>
+        <td>${l.item?.name || ''}</td>
+        <td><span class="badge ${l.status === 'borrowed' ? 'bg-warning' : 'bg-success'}">${l.status}</span></td>
+      </tr>
+    `;
 
     const loadLists = async () => {
       try {
-        const [users, items, loans] = await Promise.all([api('GET','/users'), api('GET','/items'), api('GET','/loans')]);
+        const [users, items, loans] = await Promise.all([
+          api('GET', '/users'),
+          api('GET', '/items'),
+          api('GET', '/loans'),
+        ]);
         document.querySelector('#users-table tbody').innerHTML = users.map(formatUser).join('');
         document.querySelector('#items-table tbody').innerHTML = items.map(formatItem).join('');
         document.querySelector('#loans-table tbody').innerHTML = loans.map(formatLoan).join('');
@@ -552,13 +579,25 @@
     };
 
     const doPost = async (endpoint, data, successMsg) => {
-      try { await api('POST', endpoint, data); showFeedback(successMsg, 'success'); loadLists(); } catch (err) { showFeedback(err.message, 'danger'); }
+      try {
+        await api('POST', endpoint, data);
+        showFeedback(successMsg, 'success');
+        loadLists();
+      } catch (err) {
+        showFeedback(err.message, 'danger');
+      }
     };
 
     const doDelete = async (idField, endpointFn, successMsg) => {
       const id = Number(document.getElementById(idField).value || '0');
       if (!id) return showFeedback('Informe ID válido.', 'warning');
-      try { await api('DELETE', endpointFn(id)); showFeedback(successMsg, 'success'); loadLists(); } catch (err) { showFeedback(err.message, 'danger'); }
+      try {
+        await api('DELETE', endpointFn(id));
+        showFeedback(successMsg, 'success');
+        loadLists();
+      } catch (err) {
+        showFeedback(err.message, 'danger');
+      }
     };
 
     document.getElementById('btn-create-user').onclick = () => {
@@ -593,12 +632,12 @@
       const loan_id = Number(document.getElementById('return-loan-id').value || '0');
       const user_id = Number(document.getElementById('return-user-id').value || '0');
       if (!loan_id || !user_id) return showFeedback('IDs são obrigatórios para devolução.', 'warning');
-      doPost(/loans//return, { user_id }, 'Devolução registrada com sucesso!');
+      doPost(`/loans/${loan_id}/return`, { user_id }, 'Devolução registrada com sucesso!');
     };
 
-    document.getElementById('btn-delete-user').onclick = () => doDelete('delete-user-id', id => /users/, 'Usuário excluído com sucesso!');
-    document.getElementById('btn-delete-item').onclick = () => doDelete('delete-item-id', id => /items/, 'Item excluído com sucesso!');
-    document.getElementById('btn-delete-loan').onclick = () => doDelete('delete-loan-id', id => /loans/, 'Empréstimo excluído com sucesso!');
+    document.getElementById('btn-delete-user').onclick = () => doDelete('delete-user-id', id => `/users/${id}`, 'Usuário excluído com sucesso!');
+    document.getElementById('btn-delete-item').onclick = () => doDelete('delete-item-id', id => `/items/${id}`, 'Item excluído com sucesso!');
+    document.getElementById('btn-delete-loan').onclick = () => doDelete('delete-loan-id', id => `/loans/${id}`, 'Empréstimo excluído com sucesso!');
     document.getElementById('btn-load-all').onclick = loadLists;
 
     window.onload = loadLists;
